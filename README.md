@@ -22,7 +22,7 @@ Available environment variables to configure the proxy when executed (pass these
 
 - `WORKERS` (default: `2`): Number of workers to spawn on start
 - `SECRET`: The proxy secret can be explicitly configured with this environment variable. If omitted, the container will generate one automatically and store it in the `/data` directory to re-use it after restarts.
-- `EXTERNAL_IP_PROVIDER` (default: `https://checkip.amazonaws.com`): An HTTP address that returns the external IP address in of the client connecting to it in plain text. Some common alternatives:
+- `EXTERNAL_IP_PROVIDER` (default: `https://checkip.amazonaws.com`): An HTTP address that returns the external IP address of the client connecting to it in plain text. Some common alternatives:
     - `https://digitalresistance.dog/myIp`
 - `PROXY_PORT` (default: `443`): The internal port to listen to inside the Docker container. You don't need to change this setting to expose the proxy with a different port. Just change the port mapping in the `docker run` command. (Example: `-p 4343:443`).
 - `MAX_CONNECTIONS` (default: `60000`): The maximum number of connections a single worker will be able to accept.
