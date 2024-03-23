@@ -9,13 +9,38 @@ MAX_CONNECTIONS="${MAX_CONNECTIONS:-"60000"}"
 STATS_PORT="${STATS_PORT:-"8888"}"
 
 DATA_DIR="/data"
-TMP_DIR="/mtproxy-tmp"
+CACHE_DIR="/cache"
 
 function main() {
+    if [ "$#" -eq 0 ]; then
+        echo "mtproxy-cli -- Manage the MTProxy container"
+        echo "  Usage: mtproxy-cli <command>"
+        echo ""
+        echo "  Available commands:"
+        echo "    start           -  Starts the proxy server"
+        echo "    refresh-config  -  Refreshes the configuration stored in /cache"
+        return 0
+    fi
+
+    command="${1}"
+    case "${command}" in
+    start)
+        start
+        ;;
+    refresh-config)
+        refresh_config
+        ;;
+    *)
+        log "Unknown command '${command}'"
+        ;;
+    esac
+}
+
+function start() {
     ensure_data_dir
-    ensure_tmp_dir
-    download_proxy_secret
-    download_proxy_config
+    ensure_cache_dir
+    ensure_proxy_secret
+    ensure_proxy_config
     internal_ip="$(get_internal_ip)"
     external_ip="$(get_external_ip)"
     secret="$(get_secret)"
@@ -28,12 +53,18 @@ function main() {
         --http-ports "${PROXY_PORT}" \
         --slaves "${WORKERS}" \
         --max-special-connections "${MAX_CONNECTIONS}" \
-        --aes-pwd "${TMP_DIR}/proxy_secret" \
+        --aes-pwd "${CACHE_DIR}/proxy_secret" \
         --user root \
         --allow-skip-dh \
         --nat-info "${internal_ip}:${external_ip}" \
         --mtproto-secret "${secret}" \
-        "${TMP_DIR}/proxy_config"
+        "${CACHE_DIR}/proxy_config"
+}
+
+function refresh_config() {
+    ensure_cache_dir
+    download_proxy_secret
+    download_proxy_config
 }
 
 function ensure_data_dir() {
@@ -41,19 +72,31 @@ function ensure_data_dir() {
     mkdir -p "${DATA_DIR}"
 }
 
-function ensure_tmp_dir() {
-    log "Ensuring temporary directory exists (${TMP_DIR})"
-    mkdir -p "${TMP_DIR}"
+function ensure_cache_dir() {
+    log "Ensuring temporary directory exists (${CACHE_DIR})"
+    mkdir -p "${CACHE_DIR}"
 }
 
 function download_proxy_secret() {
     log "Downloading proxy secret from Telegram"
-    curl -s https://core.telegram.org/getProxySecret -o "${TMP_DIR}/proxy_secret"
+    curl -s https://core.telegram.org/getProxySecret -o "${CACHE_DIR}/proxy_secret"
 }
 
 function download_proxy_config() {
     log "Downloading proxy config from Telegram"
-    curl -s https://core.telegram.org/getProxyConfig -o "${TMP_DIR}/proxy_config"
+    curl -s https://core.telegram.org/getProxyConfig -o "${CACHE_DIR}/proxy_config"
+}
+
+function ensure_proxy_secret() {
+    if [ ! -f "${CACHE_DIR}/proxy_secret" ]; then
+        download_proxy_secret
+    fi
+}
+
+function ensure_proxy_config() {
+    if [ ! -f "${CACHE_DIR}/proxy_config" ]; then
+        download_proxy_config
+    fi
 }
 
 function get_internal_ip() {

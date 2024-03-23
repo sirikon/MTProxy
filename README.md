@@ -15,6 +15,7 @@ Check the latest builds [here](https://github.com/sirikon/MTProxy/pkgs/container
 docker run \
     -p 443:443 \
     -v ./mtproxy_data:/data \
+    -v ./mtproxy_cache:/cache \
     ghcr.io/sirikon/mtproxy:latest
 ```
 

@@ -18,5 +18,5 @@ RUN make
 FROM base AS release
 RUN apt-get update && apt-get install -y curl libssl3 zlib1g iproute2 && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /wd/objs/bin/mtproto-proxy /usr/local/bin/mtproto-proxy
-COPY ./docker/start.sh /start.sh
-CMD ["/start.sh"]
+COPY ./docker/mtproxy-cli.sh /usr/local/bin/mtproxy-cli
+CMD ["mtproxy-cli", "start"]
