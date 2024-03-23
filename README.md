@@ -1,13 +1,43 @@
-> [!NOTE]  
-> This is a fork of the official [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy) that only adds Docker builds.
-> Source files stay **untouched**, only chagning compilation flags or environment variables if required for the Docker builds.
->
-> Check the differences with the original repository [here](https://github.com/TelegramMessenger/MTProxy/compare/master..sirikon:master).
-> 
-> Builds are automated on the `master` branch using GitHub Actions.
->
->
-> Grab the latest builds from [here](https://github.com/sirikon/MTProxy/pkgs/container/mtproxy).
+# MTProxy Docker Builds
+
+This is a fork of the official [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy) that only adds Docker builds. Source files stay **untouched**, only chagning compilation flags or environment variables if required for the Docker builds.
+
+Check the differences with the original repository [here](https://github.com/TelegramMessenger/MTProxy/compare/master..sirikon:master).
+
+Builds are automated on the `master` branch using GitHub Actions.
+
+Check the latest builds [here](https://github.com/sirikon/MTProxy/pkgs/container/mtproxy).
+
+## Usage
+
+```bash
+# Customize as needed. This is just an example.
+docker run \
+    -p 443:443 \
+    -v ./mtproxy_data:/data \
+    ghcr.io/sirikon/mtproxy:latest
+```
+
+Available environment variables to configure the proxy when executed (pass these using `-e ENV=val` arguments in `docker run`):
+
+- `WORKERS` (default: `2`): Number of workers to spawn on start
+- `SECRET`: The proxy secret can be explicitly configured with this environment variable. If omitted, the container will generate one automatically and store it in the `/data` directory to re-use it after restarts.
+- `EXTERNAL_IP_PROVIDER` (default: `https://checkip.amazonaws.com`): An HTTP address that returns the external IP address in of the client connecting to it in plain text. Some common alternatives:
+    - `https://digitalresistance.dog/myIp`
+- `PROXY_PORT` (default: `443`): The internal port to listen to inside the Docker container. You don't need to change this setting to expose the proxy with a different port. Just change the port mapping in the `docker run` command. (Example: `-p 4343:443`).
+- `MAX_CONNECTIONS` (default: `60000`): The maximum number of connections a single worker will be able to accept.
+
+---
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+_original README.md starts after this line_
+
+---
 
 # MTProxy
 Simple MT-Proto proxy
