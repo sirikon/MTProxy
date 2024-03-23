@@ -1,6 +1,6 @@
 # MTProxy Docker Builds
 
-This is a fork of the official [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy) that only adds Docker builds. Source files stay **untouched**, only chagning compilation flags or environment variables if required for the Docker builds.
+This is a fork of the official [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy) that only adds Docker builds. Source files stay **untouched**, only changing compilation flags or environment variables if required for the Docker builds.
 
 Check the differences with the original repository [here](https://github.com/TelegramMessenger/MTProxy/compare/master..sirikon:master).
 
