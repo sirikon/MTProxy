@@ -1,12 +1,17 @@
 # MTProxy Docker Builds
 
-This is a fork of the official [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy) that only adds Docker builds. Source files stay **untouched**, only changing compilation flags or environment variables if required for the Docker builds.
+This is a fork of the official [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy) that only adds Docker builds and scripts for operating the proxy. Source files stay **untouched**, only changing compilation flags or environment variables if required for the build.
 
 Check the differences with the original repository [here](https://github.com/TelegramMessenger/MTProxy/compare/master..sirikon:master).
 
 Builds are automated on the `master` branch using GitHub Actions.
 
 Check the latest builds [here](https://github.com/sirikon/MTProxy/pkgs/container/mtproxy).
+
+> [!IMPORTANT]  
+> A functioning MTProxy instance requires to have an up-to-date configuration file that is downloaded at start from Telegram servers. This file changes **regularly**, maybe multiple times per day, and MTProxy doesn't reload this file automatically.
+>
+> This means that you'll need to **regularly restart the container** to ensure that it keeps working smoothly over time. Maybe configure a cronjob to do that 😬.
 
 ## Usage
 
@@ -15,7 +20,6 @@ Check the latest builds [here](https://github.com/sirikon/MTProxy/pkgs/container
 docker run \
     -p 443:443 \
     -v ./mtproxy_data:/data \
-    -v ./mtproxy_cache:/cache \
     ghcr.io/sirikon/mtproxy:latest
 ```
 
@@ -28,6 +32,40 @@ Available environment variables to configure the proxy when executed (pass these
 - `WORKERS` (default: `2`): Number of workers to spawn on start.
 - `MAX_CONNECTIONS` (default: `60000`): The maximum number of connections a single worker will be able to accept.
 - `STATS_PORT` (default: `8888`): The internal stats port to listen to inside the Docker container. Stats can be accessed by calling to the HTTP server from inside the Docker container: `curl http://127.0.0.1:8888/stats`.
+
+### `mtproxy-cli`
+
+The container includes the utility `mtproxy-cli` to have more possibilities while operating the proxy:
+
+```
+mtproxy-cli -- Manage the MTProxy container
+  Usage: mtproxy-cli <command>
+
+  Available commands:
+    start           -  Starts the proxy server
+    refresh-config  -  Refreshes the configuration stored in /cache
+```
+
+- `start`: Starts the proxy server. This is the containers default command when calling `docker run` without any explicit command at the end.
+- `refresh-config`: Will refresh the proxy configuration file stored in the `/cache` directory.
+
+### Optimization: Refresh config files while the proxy is running
+
+The `refresh-config` command enables the possibility of downloading the new version of configuration files while the server is still running, and then restarting it afterwards, increasing the time the server is up and serving requests.
+
+```bash
+# You'll need to mount the cache directory too
+# for this optimization to work
+docker run \
+    -p 443:443 \
+    -v ./mtproxy_data:/data \
+    -v ./mtproxy_cache:/cache \
+    ghcr.io/sirikon/mtproxy:latest
+
+# Now, whenever you want to restart the proxy...
+docker exec -t "$container_id_here" mtproxy-cli refresh-config
+docker restart "$container_id_here"
+```
 
 ---
 
