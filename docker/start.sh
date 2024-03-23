@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WORKERS="${WORKERS:-"2"}"
 SECRET="${SECRET:-""}"
 EXTERNAL_IP_PROVIDER="${EXTERNAL_IP_PROVIDER:-"https://checkip.amazonaws.com"}"
-STATS_PORT="${STATS_PORT:-"8888"}"
 PROXY_PORT="${PROXY_PORT:-"443"}"
+WORKERS="${WORKERS:-"2"}"
 MAX_CONNECTIONS="${MAX_CONNECTIONS:-"60000"}"
+STATS_PORT="${STATS_PORT:-"8888"}"
 
 DATA_DIR="/data"
 TMP_DIR="/mtproxy-tmp"
@@ -24,6 +24,7 @@ function main() {
     log "Proxy link: https://t.me/proxy?server=${external_ip}&port=${PROXY_PORT}&secret=${secret}"
     exec mtproto-proxy \
         --port "${STATS_PORT}" \
+        --http-stats \
         --http-ports "${PROXY_PORT}" \
         --slaves "${WORKERS}" \
         --max-special-connections "${MAX_CONNECTIONS}" \
