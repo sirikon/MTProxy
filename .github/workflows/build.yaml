@@ -12,4 +12,4 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
       - name: Publish
         if: github.ref == 'refs/heads/master'
-        run: ./scripts/publish.sh
+        run: ./meta/publish.sh
